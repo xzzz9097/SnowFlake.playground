@@ -150,3 +150,10 @@ public class FlakeView : NSView {
             .draw(in: flakePath, angle: 90.0)
     }
 }
+
+/*
+ Create the flake view
+ */
+public func makeFlakeView() -> FlakeView {
+    return FlakeView(frame: flakeRect(for: segmentLength))
+}
