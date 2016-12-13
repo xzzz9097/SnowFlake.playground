@@ -1,5 +1,6 @@
 import Foundation
 import Cocoa
+import SceneKit
 
 // Flake appearance options
 public var segmentLength:  CGFloat = 0.0       // The length of flake lines
@@ -8,6 +9,9 @@ public var flakeStroke:    NSColor = NSColor() // Border color
 public var strokeWidth:    CGFloat = 0.0       // Border width
 public var flakeFillStart: NSColor = NSColor() // Fill gradient - 1st color
 public var flakeFillEnd:   NSColor = NSColor() // Fill gradient - 2nd color
+
+// Other options
+public var path:           String  = ""        // The exported file path
 
 public extension CGFloat {
     
@@ -102,14 +106,34 @@ public func flakeRect(for length: CGFloat) -> NSRect {
 }
 
 /*
+ Export the bezier path to a specified path in a DAE file
+ */
+public func exportBezierPath(_ path: NSBezierPath, to url: String) -> Bool {
+    let shape = SCNShape(path: path, extrusionDepth: 1.0)
+    
+    let node = SCNNode(geometry: shape)
+    
+    let scene = SCNScene.init()
+    
+    scene.rootNode.addChildNode(node)
+    
+    scene.write(to: URL.init(fileURLWithPath: url),
+                options: nil,
+                delegate: nil,
+                progressHandler: nil)
+    
+    return true
+}
+
+/*
  Custom NSView for the flake
  */
 public class FlakeView : NSView {
     
+    // Create the path
+    public let flakePath = NSBezierPath()
+    
     override public func draw(_ dirtyRect: NSRect) {
-        // Create the path
-        let flakePath = NSBezierPath()
-        
         // Print execution time
         Swift.print(flakePath.makeSnowFlakeAndMeasure(from: flakeStart(for: segmentLength,
                                                                        in: dirtyRect),
